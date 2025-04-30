@@ -5,7 +5,7 @@ import re
 import multiprocessing
 from tqdm import tqdm
 import time
-
+import argparse
 
 
 
@@ -164,15 +164,30 @@ def progress_bar(target_folder: str, target_size: int):
 
 
 if __name__ == "__main__":
-    samples_folder = os.path.abspath("./samples")
-    populated_folder = "./populated"
-    if not os.path.exists(populated_folder): os.mkdir("./populated")
+    parser = argparse.ArgumentParser(prog='File Populator',
+                    description='This script simple populates a target folder with fuzzy files taken from a sample folder',
+                    epilog='For more info, please contact Ayman Mohamed Reda via https://www.linkedin.com/in/ayman-reda-b845b0203/')
+    parser.add_argument('folderpath', type=str, default="./populated", help="Path to the target folder, it must be empty or non-existent")
+    parser.add_argument('-d', '--maxdepth', type=int, default=2, help="Max Depth of nested folders")
+    parser.add_argument('-s', '--foldersize', type=int, default=5000 , help="Intended size of 1 folder in Bytes, not the overall size after finishing")
+    parser.add_argument('-c', '--foldercount', type=int, default=10 , help="Folders count per each nested folder")
+    parser.add_argument('-i', '--samples', type=str, default="./samples" , help="Path to a folder containing some sample files to copy from")
+    
+    args = parser.parse_args()
+    
+    
+    samples_folder = args.samples
+    populated_folder = args.folderpath
+    max_depth = args.maxdepth
+    folder_count = args.foldercount
+    foldersize = args.foldersize
+    if not os.path.exists(populated_folder): os.mkdir(populated_folder)
     populated_folder = os.path.abspath(populated_folder)
     
     
     start_progress_bar_process(target_folder=populated_folder, target_size=2000000000)
-    recursive_folder_population(start_folder=populated_folder, curr_depth=1, max_depth=2, folder_count_per_step=10)
-    recursive_file_population(start_folder=populated_folder, samples_folder=samples_folder, one_folder_size=5000)
+    recursive_folder_population(start_folder=populated_folder, curr_depth=1, max_depth=max_depth, folder_count_per_step=folder_count)
+    recursive_file_population(start_folder=populated_folder, samples_folder=samples_folder, one_folder_size=foldersize)
     
     
     
